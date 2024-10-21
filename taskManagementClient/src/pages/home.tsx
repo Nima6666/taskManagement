@@ -7,14 +7,22 @@ export default function Home() {
         Welcome to TASKYY
       </h1>
       <p className="text-lg text-white mb-6 text-center">
-        Get ahead of yourself, manage your day-to-day tasks with us.
+        Get ahead of yourself, managing your day-to-day tasks.
       </p>
-      <Link
-        to="/signup"
-        className="bg-white text-blue-500 font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 hover:shadow-lg"
-      >
-        Get Started Now
-      </Link>
+      <div>
+        <Link
+          to="/signup"
+          className="bg-white text-blue-500 font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 hover:shadow-lg m-2"
+        >
+          Sign up
+        </Link>
+        <Link
+          to="/login"
+          className="bg-white text-blue-500 font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 hover:shadow-lg m-2"
+        >
+          Login
+        </Link>
+      </div>
     </div>
   );
 }

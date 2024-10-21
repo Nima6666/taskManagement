@@ -4,7 +4,9 @@ export default function Header() {
   return (
     <header className="bg-gray-800 text-white p-4 fixed w-screen top-0 z-50 px-4">
       <div className="container mx-auto flex justify-between items-center">
-        <div className="text-lg font-bold">TASKYY</div>
+        <Link to="/" className="text-lg font-bold">
+          TASKYY
+        </Link>
         <nav>
           <ul className="flex space-x-4">
             <li className="bg-gradient-to-r from-orange-400 to-yellow-400 p-2 px-4 rounded-lg shadow-lg transition-transform transform hover:scale-105">

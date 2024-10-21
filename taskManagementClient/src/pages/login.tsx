@@ -1,11 +1,9 @@
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import toast from "react-hot-toast";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
-import { uiActions } from "../reduxStore/slices/uiSlice";
 import { RootState } from "../reduxStore/slices/rootReducer";
-import axios from "axios";
+import toast from "react-hot-toast";
+import { uiActions } from "../reduxStore/slices/uiSlice";
 
-// Define the initial form value type
 interface FormValues {
   fullName: string;
   email: string;
@@ -13,17 +11,13 @@ interface FormValues {
   confirmPassword: string;
 }
 
-export default function Signup() {
+export default function Login() {
   const pending = useSelector((state: RootState) => state.ui.pending);
+
   const dispatch = useDispatch();
 
   const validate = (formData: FormValues) => {
     const errors: Partial<FormValues> = {};
-    if (!formData.fullName) {
-      errors.fullName = "Full Name is required";
-    } else if (formData.fullName.length < 2) {
-      errors.fullName = "Full Name must be at least 2 characters";
-    }
     if (!formData.email) {
       errors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -35,38 +29,15 @@ export default function Signup() {
     } else if (formData.password.length < 8) {
       errors.password = "Password must be at least 8 characters";
     }
-    if (!formData.confirmPassword) {
-      errors.confirmPassword = "Confirm Password is required";
-    }
     return errors;
   };
 
-  const handleSubmit = async (formData: FormValues) => {
+  const handleLogin = async (formData: FormValues) => {
     console.log("Form Values:", formData);
-    if (formData.password !== formData.confirmPassword) {
-      return toast.error("Passowrds doesnt match");
-    }
 
-    try {
-      dispatch(uiActions.setPending());
-
-      const response = await axios.post(
-        `${import.meta.env.VITE_SERVERAPI}/user/`,
-        {
-          ...formData,
-        }
-      );
-
-      console.log(response);
-    } catch (error: any) {
-      if (error.response && error.response.data.message) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error(error.message);
-      }
-    } finally {
-      dispatch(uiActions.setPendingResolved());
-    }
+    dispatch(uiActions.setPending());
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    dispatch(uiActions.setPendingResolved());
   };
 
   return (
@@ -77,11 +48,7 @@ export default function Signup() {
         cursor: pending ? "not-allowed" : "default",
       }}
     >
-      <div className="text-slate-600 text-center flex flex-col justify-center items-start mb-2">
-        <strong>Note</strong>
-        <div className="text-sm">Please use real email to get reminders.</div>
-      </div>
-      <h1 className="text-2xl font-bold mb-6">Signup</h1>
+      <h1 className="text-2xl font-bold mb-6">Login</h1>
       <Formik
         initialValues={{
           fullName: "",
@@ -90,7 +57,7 @@ export default function Signup() {
           confirmPassword: "",
         }}
         validate={validate}
-        onSubmit={handleSubmit}
+        onSubmit={handleLogin}
       >
         {() => (
           <Form
@@ -101,7 +68,7 @@ export default function Signup() {
           >
             <div className="grid grid-cols-1 gap-4">
               {/* Full Name Field */}
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <label
                   htmlFor="fullName"
                   className="block text-sm font-medium text-gray-700"
@@ -118,7 +85,7 @@ export default function Signup() {
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />
-              </div>
+              </div> */}
 
               {/* Email Field */}
               <div className="mb-4">
@@ -161,7 +128,7 @@ export default function Signup() {
               </div>
 
               {/* Confirm Password Field */}
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <label
                   htmlFor="confirmPassword"
                   className="block text-sm font-medium text-gray-700"
@@ -178,7 +145,7 @@ export default function Signup() {
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />
-              </div>
+              </div> */}
 
               {/* Submit Button */}
               <div className="mb-4">
@@ -186,7 +153,7 @@ export default function Signup() {
                   type="submit"
                   className="w-full bg-blue-500 text-white font-semibold py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
                 >
-                  {pending ? "Please Wait..." : "Signup"}
+                  {pending ? "Please Wait..." : "Login"}
                 </button>
               </div>
             </div>

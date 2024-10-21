@@ -5,8 +5,6 @@ import { BeatLoader } from "react-spinners";
 
 export default function Home() {
   const { loggedUser } = useSelector((state: RootState) => state.user);
-
-  console.log(loggedUser);
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-r from-blue-500 to-teal-500 p-6">
       <h1 className="text-4xl font-bold text-white mb-4 text-center">

@@ -4,7 +4,7 @@ const queries = require("../database/queries");
 
 module.exports.generateToken = (payload, accessToken) => {
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: accessToken ? "10m" : "7d",
+    expiresIn: accessToken ? "20s" : "7d",
   });
   return token;
 };
@@ -14,6 +14,7 @@ module.exports.isAuthenticated = expressAsyncHandler(async (req, res, next) => {
 
   if (typeof bearerToken !== "undefined") {
     const token = bearerToken.split(" ")[1];
+    console.log(token);
     jwt.verify(token, process.env.JWT_SECRET, async (err, payload) => {
       if (err) {
         console.log(err);

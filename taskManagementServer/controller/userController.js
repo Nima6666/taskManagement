@@ -79,7 +79,7 @@ module.exports.login = expressAsyncHandler(async (req, res) => {
       res.json({
         success: true,
         message: "logged in",
-        accessToken,
+        accessToken: `Bearer ${accessToken}`,
         refreshToken,
         name: userFromEmail.full_name,
         email: userFromEmail.email,
@@ -95,7 +95,6 @@ module.exports.login = expressAsyncHandler(async (req, res) => {
 module.exports.generateAccessToken = expressAsyncHandler(async (req, res) => {
   const payload = req.headers.payload;
   const loggedInUser = await queries.getUserById(payload.user_id);
-  console.log(loggedInUser);
   const accessTokenPayload = {
     user_id: loggedInUser.id,
     username: loggedInUser.full_name,
@@ -103,15 +102,13 @@ module.exports.generateAccessToken = expressAsyncHandler(async (req, res) => {
   };
   console.log("access token granted");
   const newAccessToken = generateToken(accessTokenPayload, true);
-  setTimeout(() => {
-    res.json({
-      success: true,
-      message: "granted new access token",
-      loggedInUser: {
-        name: loggedInUser.full_name,
-        email: loggedInUser.email,
-        newAccessToken,
-      },
-    });
-  }, 5000);
+  res.json({
+    success: true,
+    message: "granted new access token",
+    loggedInUser: {
+      name: loggedInUser.full_name,
+      email: loggedInUser.email,
+      newAccessToken: `Bearer ${newAccessToken}`,
+    },
+  });
 });

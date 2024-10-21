@@ -11,7 +11,15 @@ export interface userState {
   };
 }
 
-export async function getAccessToken(refreshToken: string) {
+export async function getAccessToken() {
+  const refreshToken = localStorage.getItem("refreshToken");
+
+  if (!refreshToken) {
+    localStorage.removeItem("refreshToken");
+    window.location.href = "/login";
+    window.location.reload();
+  }
+
   console.log("requesting access token");
   try {
     const response = await axios.post(
@@ -53,7 +61,6 @@ const userSlice = createSlice({
   } as userState,
   reducers: {
     setLoggedUser(state, action) {
-      console.log(action.payload);
       state.loggedUser.resolved = true;
       state.loggedUser.accessToken = action.payload.accessToken;
       state.loggedUser.name = action.payload.name;

@@ -5,6 +5,8 @@ import { uiActions } from "../reduxStore/slices/uiSlice";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { getAccessToken, userActions } from "../reduxStore/slices/userSlice";
+import { useEffect } from "react";
 
 interface TaskFormValues {
   title: string;
@@ -14,6 +16,12 @@ interface TaskFormValues {
 
 export default function TaskForm() {
   const pending = useSelector((state: RootState) => state.ui.pending);
+  const { loggedUser } = useSelector((state: RootState) => state.user);
+
+  useEffect(() => {
+    async function getUsersTasksHandler() {}
+  }, []);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -43,18 +51,70 @@ export default function TaskForm() {
     }
     return errors;
   };
+  //   console.log("Form Values:", formData);
+  //   try {
+  //     dispatch(uiActions.setPending());
 
-  const handleTaskAdd = async (formData: TaskFormValues) => {
-    console.log("Form Values:", formData);
+  //     const response = await axios.post(
+  //       `${import.meta.env.VITE_SERVERAPI}/task/`,
+  //       {
+  //         ...formData,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: loggedUser.accessToken as string,
+  //         },
+  //       }
+  //     );
+  //     console.log(response.data);
+  //     if (response.data.success) {
+  //       toast.success(response.data.message);
+  //       navigate("/dashboard");
+  //     } else {
+  //       toast.error(response.data.message);
+  //     }
+  //   } catch (error: any) {
+  //     if (error.status == 403) {
+  //       const loggedInUser = await getAccessToken();
+  //       console.log(loggedInUser);
+  //       dispatch(
+  //         userActions.setLoggedUser({
+  //           name: loggedInUser.name,
+  //           accessToken: loggedInUser.newAccessToken,
+  //           email: loggedInUser.email,
+  //         })
+  //       );
+  //       handleTaskAdd(formData);
+  //     }
+  //     if (error.response && error.response.data.message) {
+  //       toast.error(error.response.data.message);
+  //     } else {
+  //       toast.error(error.message);
+  //     }
+  //   } finally {
+  //     dispatch(uiActions.setPendingResolved());
+  //   }
+  // };
+
+  const handleTaskAdd = async (
+    formData: TaskFormValues,
+    accessToken: string
+  ) => {
+    console.log("using access token ", accessToken);
     try {
       dispatch(uiActions.setPending());
 
+      console.log(loggedUser.accessToken);
       const response = await axios.post(
         `${import.meta.env.VITE_SERVERAPI}/task/`,
+        { ...formData },
         {
-          ...formData,
+          headers: {
+            Authorization: accessToken as string,
+          },
         }
       );
+
       console.log(response.data);
       if (response.data.success) {
         toast.success(response.data.message);
@@ -62,14 +122,28 @@ export default function TaskForm() {
       } else {
         toast.error(response.data.message);
       }
+      dispatch(uiActions.setPendingResolved());
     } catch (error: any) {
       if (error.response && error.response.data.message) {
+        const { status } = error.response;
+
+        //  if status code is 403 i.e access token expired
+        if (status === 403) {
+          toast.success("requesting new token");
+          const loggedInUser = await getAccessToken();
+          dispatch(
+            userActions.setLoggedUser({
+              name: loggedInUser.name,
+              accessToken: loggedInUser.newAccessToken,
+              email: loggedInUser.email,
+            })
+          );
+          return handleTaskAdd(formData, loggedInUser.newAccessToken);
+        }
         toast.error(error.response.data.message);
       } else {
         toast.error(error.message);
       }
-    } finally {
-      dispatch(uiActions.setPendingResolved());
     }
   };
 
@@ -89,16 +163,24 @@ export default function TaskForm() {
           due_date: "",
         }}
         validate={validate}
-        onSubmit={handleTaskAdd}
+        onSubmit={async (formData, { setSubmitting }) => {
+          await handleTaskAdd(formData, loggedUser.accessToken as string);
+          setSubmitting(false); // stop the form submission status
+        }}
       >
         {() => (
           <Form
             className="transition-all duration-300"
             style={{
               pointerEvents: pending ? "none" : "all",
+              cursor: !loggedUser.resolved ? "not-allowed" : "default",
             }}
           >
-            <div className="grid grid-cols-1 gap-4">
+            <div
+              className={`grid grid-cols-1 gap-4 ${
+                !loggedUser.resolved && "pointer-events-none opacity-60"
+              }`}
+            >
               {/* Title Field */}
               <div className="mb-4">
                 <label

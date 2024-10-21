@@ -19,9 +19,8 @@ function App() {
 
   useEffect(() => {
     async function handleAsyncAccessTokenReq() {
-      if (!loggedUser.accessToken && refreshToken) {
-        const loggedInUser = await getAccessToken(refreshToken);
-        console.log(loggedInUser);
+      if (!loggedUser.accessToken) {
+        const loggedInUser = await getAccessToken();
         dispatch(
           userActions.setLoggedUser({
             name: loggedInUser.name,
@@ -33,7 +32,12 @@ function App() {
         dispatch(userActions.setUserResolved());
       }
     }
-    handleAsyncAccessTokenReq();
+    if (refreshToken) {
+      handleAsyncAccessTokenReq();
+    } else {
+      console.log("e");
+      dispatch(userActions.setUserResolved());
+    }
   }, [loggedUser]);
 
   return (

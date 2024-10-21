@@ -3,7 +3,6 @@ const createError = require("http-errors");
 const cors = require("cors");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
-const userRoute = require("./routes/userRoute");
 
 dotenv.config();
 
@@ -22,7 +21,11 @@ app.get("/", (req, res) => {
   });
 });
 
+const userRoute = require("./routes/userRoute");
+const taskRoute = require("./routes/taskRoute");
+
 app.use("/user", userRoute);
+app.use("/task", taskRoute);
 
 // Catch 404 and forward to error handler
 app.use((req, res, next) => {

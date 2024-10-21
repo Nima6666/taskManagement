@@ -4,6 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { uiActions } from "../reduxStore/slices/uiSlice";
 import { RootState } from "../reduxStore/slices/rootReducer";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { userActions } from "../reduxStore/slices/userSlice";
 
 // Define the initial form value type
 interface FormValues {
@@ -16,6 +19,12 @@ interface FormValues {
 export default function Signup() {
   const pending = useSelector((state: RootState) => state.ui.pending);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(userActions.resetUser());
+  }, []);
+
+  const navigate = useNavigate();
 
   const validate = (formData: FormValues) => {
     const errors: Partial<FormValues> = {};
@@ -42,7 +51,6 @@ export default function Signup() {
   };
 
   const handleSubmit = async (formData: FormValues) => {
-    console.log("Form Values:", formData);
     if (formData.password !== formData.confirmPassword) {
       return toast.error("Passowrds doesnt match");
     }
@@ -56,8 +64,12 @@ export default function Signup() {
           ...formData,
         }
       );
-
-      console.log(response);
+      if (response.data.success) {
+        toast.success(response.data.message);
+        navigate("/login");
+      } else {
+        toast.error(response.data.message);
+      }
     } catch (error: any) {
       if (error.response && error.response.data.message) {
         toast.error(error.response.data.message);

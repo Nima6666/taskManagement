@@ -1,50 +1,56 @@
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Formik, Field, Form, ErrorMessage } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../reduxStore/slices/rootReducer";
-import toast from "react-hot-toast";
 import { uiActions } from "../reduxStore/slices/uiSlice";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { userActions } from "../reduxStore/slices/userSlice";
-import { useEffect } from "react";
 
-interface FormValues {
-  email: string;
-  password: string;
+interface TaskFormValues {
+  title: string;
+  description: string;
+  due_date: string;
 }
 
-export default function Login() {
+export default function TaskForm() {
   const pending = useSelector((state: RootState) => state.ui.pending);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(userActions.resetUser());
-  }, []);
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
+  };
 
-  const validate = (formData: FormValues) => {
-    const errors: Partial<FormValues> = {};
-    if (!formData.email) {
-      errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Invalid email format";
+  const validate = (values: TaskFormValues) => {
+    const errors: Partial<TaskFormValues> = {};
+    if (!values.title) {
+      errors.title = "Title is required";
+    } else if (values.title.length > 255) {
+      errors.title = "Title must be 255 characters or less";
     }
-
-    if (!formData.password) {
-      errors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      errors.password = "Password must be at least 8 characters";
+    if (!values.description) {
+      errors.description = "Description is required";
+    }
+    if (!values.due_date) {
+      errors.due_date = "Due date is required";
+    } else if (isNaN(Date.parse(values.due_date))) {
+      errors.due_date = "Invalid date format";
+    } else if (new Date(values.due_date).getTime() < Date.now()) {
+      errors.due_date = "Date can not be in past";
     }
     return errors;
   };
 
-  const handleLogin = async (formData: FormValues) => {
+  const handleTaskAdd = async (formData: TaskFormValues) => {
     console.log("Form Values:", formData);
     try {
       dispatch(uiActions.setPending());
 
       const response = await axios.post(
-        `${import.meta.env.VITE_SERVERAPI}/user/login`,
+        `${import.meta.env.VITE_SERVERAPI}/task/`,
         {
           ...formData,
         }
@@ -52,15 +58,6 @@ export default function Login() {
       console.log(response.data);
       if (response.data.success) {
         toast.success(response.data.message);
-        localStorage.setItem("refreshToken", response.data.refreshToken);
-        console.log(response.data);
-        dispatch(
-          userActions.setLoggedUser({
-            name: response.data.name,
-            email: response.data.email,
-            accessToken: response.data.accessToken,
-          })
-        );
         navigate("/dashboard");
       } else {
         toast.error(response.data.message);
@@ -78,20 +75,21 @@ export default function Login() {
 
   return (
     <div
-      className="w-full sm:w-[400px] mx-auto mt-24 p-5 rounded shadow-lg bg-white"
+      className="w-full sm:w-[400px] mx-auto mt-32 p-5 rounded shadow-lg bg-white"
       style={{
         opacity: pending ? 0.6 : 1,
         cursor: pending ? "not-allowed" : "default",
       }}
     >
-      <h1 className="text-2xl font-bold mb-6">Login</h1>
+      <h1 className="text-2xl font-bold mb-6">Create Task</h1>
       <Formik
         initialValues={{
-          email: "",
-          password: "",
+          title: "",
+          description: "",
+          due_date: "",
         }}
         validate={validate}
-        onSubmit={handleLogin}
+        onSubmit={handleTaskAdd}
       >
         {() => (
           <Form
@@ -101,41 +99,62 @@ export default function Login() {
             }}
           >
             <div className="grid grid-cols-1 gap-4">
-              {/* Email Field */}
+              {/* Title Field */}
               <div className="mb-4">
                 <label
-                  htmlFor="email"
+                  htmlFor="title"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Email
+                  Title
                 </label>
                 <Field
-                  type="email"
-                  name="email"
+                  type="text"
+                  name="title"
                   className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
                 />
                 <ErrorMessage
-                  name="email"
+                  name="title"
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />
               </div>
 
-              {/* Password Field */}
+              {/* Description Field */}
               <div className="mb-4">
                 <label
-                  htmlFor="password"
+                  htmlFor="description"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Password
+                  Description
                 </label>
                 <Field
-                  type="password"
-                  name="password"
-                  className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
+                  as="textarea"
+                  name="description"
+                  rows="4"
+                  className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none resize-none"
                 />
                 <ErrorMessage
-                  name="password"
+                  name="description"
+                  component="div"
+                  className="text-red-600 text-sm mt-1"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="due_date"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Due Date and Time
+                </label>
+                <Field
+                  type="datetime-local"
+                  name="due_date"
+                  className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
+                  min={getCurrentDateTime()}
+                />
+                <ErrorMessage
+                  name="due_date"
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />
@@ -147,7 +166,7 @@ export default function Login() {
                   type="submit"
                   className="w-full bg-blue-500 text-white font-semibold py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
                 >
-                  {pending ? "Please Wait..." : "Login"}
+                  {pending ? "Please Wait..." : "Create Task"}
                 </button>
               </div>
             </div>

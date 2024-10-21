@@ -1,7 +1,7 @@
-import pkg from "pg";
-import dotenv from "dotenv";
-dotenv.config();
-const { Client } = pkg;
+// import pkg from "pg";
+const { Client } = require("pg");
+require("dotenv").config();
+// const { Client } = pkg;
 
 console.log(
   process.env.DB_USER,
@@ -34,11 +34,11 @@ CREATE TABLE IF NOT EXISTS tasks (
 );
 `;
 
-const accessTokenTableQuery = `
-CREATE TABLE IF NOT EXISTS accessTokens (
+const refreshTokenTableQuery = `
+CREATE TABLE IF NOT EXISTS refreshtokens (
   id CHAR(36) PRIMARY KEY,
-  user_id CHAR(36),
-  token VARCHAR(255) not null,
+  user_id CHAR(36) UNIQUE NOT NULL,
+  token VARCHAR(255) NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 `;
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS accessTokens (
 
     await client.query(userQuery);
     await client.query(tasksQuery);
-    await client.query(accessTokenTableQuery);
+    await client.query(refreshTokenTableQuery);
 
     await client.end();
     console.log("Database operation completed.");

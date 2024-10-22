@@ -6,13 +6,19 @@ const { generateToken } = require("../middleware/auth");
 module.exports.register = expressAsyncHandler(async (req, res) => {
   const { fullName, email, password } = req.body;
 
+  if (!fullName || !email || !password) {
+    return res.status(400).json({
+      message: "Fields Missing",
+    });
+  }
+
   if (!/\S+@\S+\.\S+/.test(email)) {
-    return res.json({
+    return res.status(400).json({
       message: "invalid email format",
     });
   }
   if (password.length < 8) {
-    return res.json({
+    return res.status(400).json({
       message: "Password must be 8 characters long.",
     });
   }
@@ -20,7 +26,7 @@ module.exports.register = expressAsyncHandler(async (req, res) => {
   const userExists = await queries.checkForExistingUser(req.body.email);
   if (userExists) {
     console.log("user exists");
-    return res.json({
+    return res.status(400).json({
       message: "User Exists",
     });
   }
@@ -63,7 +69,7 @@ module.exports.login = expressAsyncHandler(async (req, res) => {
     const refreshToken = generateToken(payloadToRefreshToken);
 
     // storing refresh token on database
-    const tokenStored = queries.setRefreshTokenForUser(
+    const tokenStored = await queries.setRefreshTokenForUser(
       userFromEmail.id,
       refreshToken
     );
@@ -104,7 +110,8 @@ module.exports.generateAccessToken = expressAsyncHandler(async (req, res) => {
   const newAccessToken = generateToken(accessTokenPayload, true);
   res.json({
     success: true,
-    message: "granted new access token",
+    message:
+      "granted new access token. hurry with your access token it expires in 30s",
     loggedInUser: {
       name: loggedInUser.full_name,
       email: loggedInUser.email,

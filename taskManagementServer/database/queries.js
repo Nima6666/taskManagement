@@ -31,10 +31,21 @@ module.exports.setRefreshTokenForUser = async (user_id, token) => {
   return dbresponse.rowCount;
 };
 
+module.exports.checkIfRefreshTokenExists = async (user_id, token) => {
+  const checkTokenQuery =
+    "SELECT * FROM refreshtokens WHERE user_id=$1 AND token=$2";
+  const dbresponse = await pool.query(checkTokenQuery, [user_id, token]);
+  return dbresponse.rowCount;
+};
+
 module.exports.dropUserTokens = async (user_id) => {
   const dropUserTokenQuery = "DELETE FROM refreshtokens WHERE user_id = $1;";
   const dbresponse = await pool.query(dropUserTokenQuery, [user_id]);
-  console.log(dbresponse);
+  if (dbresponse.rowCount) {
+    console.log("deleted previous refresh token ", dbresponse.rowCount);
+  } else {
+    console.log("smthng wnt wrng clarng prev tkns");
+  }
 };
 
 module.exports.getUserById = async (user_id) => {
@@ -58,8 +69,23 @@ module.exports.addTask = async (user_id, title, description, due_date) => {
   return dbresponse.rowCount;
 };
 
-module.exports.getTasks = async (user_id, field) => {
-  const getTaskQuery = `SELECT * FROM tasks WHERE user_id = $1 ORDER BY ${field} DESC;`;
+module.exports.getTasks = async (user_id, name, sort) => {
+  const validColumns = ["created_at", "due_date", "title"];
+  const sortTypes = ["ASC", "DESC"];
+  if (!validColumns.includes(name)) {
+    throw new Error("Invalid column name for ordering");
+  }
+  if (!sort.includes(sort)) {
+    throw new Error("Invalid sort for ordering");
+  }
+  const getTaskQuery = `SELECT * FROM tasks WHERE user_id = $1 ORDER BY ${name} ${sort};`;
   const dbresponse = await pool.query(getTaskQuery, [user_id]);
   return dbresponse.rows;
+};
+
+module.exports.getTask = async (user_id, task_id) => {
+  const getTaskByIdQuery = `SELECT * FROM tasks WHERE user_id = $1 AND id = $2`;
+  const dbresponse = await pool.query(getTaskByIdQuery, [user_id, task_id]);
+  const [task] = dbresponse.rows;
+  return task;
 };

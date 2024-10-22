@@ -53,9 +53,18 @@ const swaggerSpec = swaggerJsDoc(options);
 
 app.use("/api_docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// routes
 const userRoute = require("./routes/userRoute");
 const taskRoute = require("./routes/taskRoute");
 const { pollDatabaseAndSendMail } = require("./controller/taskController");
+
+app.get("/", (req, res) => {
+  res.send(
+    `TASKYY API. find api docs at <a href='http://localhost:${
+      process.env.PORT || 3000
+    }/api_docs'>here</a>`
+  );
+});
 
 app.use("/user", userRoute);
 app.use("/task", taskRoute);
@@ -154,6 +163,15 @@ setInterval(() => {
  *           type: string
  *           format: date-time
  *           description: The date and time when the task was edited.
+ *           example: "2023-10-21T10:10:00Z"
+ *         aleted_user:
+ *           type: boolean
+ *           description: Stores value to denote if the user is notified about this task via email if task is not complete before due_date.
+ *           example: false
+ *         completed_at:
+ *           type: string
+ *           format: date-time
+ *           description: The date and time when the task is completed.
  *           example: "2023-10-21T10:10:00Z"
  *     Refreshtokens:
  *       type: object
@@ -347,9 +365,43 @@ setInterval(() => {
  *         description: Access token expired. **You will need to request a new access Token.**
  *       404:
  *         description: Requested task not found.
+ *   put:
+ *     summary: Edits user task.
+ *     description: Updates user task using task_id. Checks if the task is changed and updates task if updated data is provided. Updates **title and description** and sets **edited_at** to **current time**
+ *     tags:
+ *       - Tasks
+ *     parameters:
+ *       - $ref: '#/components/parameters/AuthorizationHeader'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - description
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 format: text
+ *                 example: "Complete this assessment."
+ *               description:
+ *                 type: string
+ *                 format: email
+ *                 example: "I need to complete this assessment before bed."
+ *     responses:
+ *       200:
+ *         description: Task created for user.
+ *       400:
+ *         description: Bad request.
+ *       403:
+ *         description: Access token expired. **You will need to request for new access Token.**
+ *       404:
+ *         description: Requested Task not found.
  *   patch:
  *     summary: update completion status of user.
- *     description: update specefic task for user using the **task_id**. sets task to complete if not completed and vice versa.
+ *     description: update specefic task for user using the **task_id. sets task to complete if not completed and vice versa. Polls database immediately if task completion is set to false, sets tasks alerted_user to false to send email reminding task upcoming within 30 minutes. Sets completed_at to current time on task completion**
  *     tags:
  *       - Tasks
  *     parameters:
@@ -368,7 +420,7 @@ setInterval(() => {
  *       403:
  *         description: Access token expired. **You will need to request a new access Token.**
  *       404:
- *         description: Requested Taks not found.
+ *         description: Requested Task not found.
  *   delete:
  *     summary: Delete individual task for user using task_id.
  *     description: Delete specific task for user using the **task_id**.

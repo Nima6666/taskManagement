@@ -268,8 +268,8 @@ module.exports.updateTask = expressAsyncHandler(async (req, res) => {
       message: "task updated",
     });
   } else {
-    return res.json({
-      message: "something went wrong edited task",
+    return res.status(404).json({
+      message: "task not found",
     });
   }
 });

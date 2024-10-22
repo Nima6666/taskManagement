@@ -2,7 +2,8 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "populateDb": "node populateDb.js"
+    "populateDb": "node populateDb.js",
+    "migrateDb": "node ./database/migrateDb.js"
   },
   "name": "task-management-server",
   "dependencies": {

@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   edited_at TIMESTAMP DEFAULT NULL,
   complete BOOLEAN DEFAULT FALSE,
   completed_at TIMESTAMP DEFAULT NULL,
+  alerted_user BOOLEAN DEFAULT FALSE,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 `;
@@ -48,11 +49,7 @@ CREATE TABLE IF NOT EXISTS refreshtokens (
   try {
     console.log("Connecting to the database...");
     const client = new Client({
-      connectionString: `postgresql://${process.env.DB_USER || "postgres"}:${
-        process.env.DB_PASSWORD || "2367"
-      }@${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || 5432}/${
-        process.env.DB_NAME || "taskmanagement"
-      }`,
+      connectionString: `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
     });
     await client.connect();
 

@@ -15,7 +15,7 @@ export default function Home() {
       </p>
       {loggedUser.resolved && loggedUser.accessToken ? (
         <Link
-          to="/Dashboard"
+          to="/tasks"
           className="bg-white text-blue-500 font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 hover:shadow-lg m-2"
         >
           Go to dashboard

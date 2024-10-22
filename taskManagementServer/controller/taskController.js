@@ -10,13 +10,81 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-module.exports.pollDatabaseAndSendMail = () => {};
+module.exports.pollDatabaseAndSendMail = async () => {
+  const thirtyMinutesFromNowInMs = new Date(Date.now() + 30 * 60 * 1000);
+
+  const thirtyMinutesFromNow = thirtyMinutesFromNowInMs
+    .toLocaleString("sv", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      fractionalSecondDigits: 3,
+      hour12: false,
+    })
+    .replace("T", " ")
+    .replace(",", ".");
+
+  const urgentTasks = await queries.getUrgentTasks(thirtyMinutesFromNow);
+  usersWithDueTasks = urgentTasks;
+  console.log("users with urgent tasks un-notified: ", usersWithDueTasks);
+  for (let index = 0; index < usersWithDueTasks.length; index++) {
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: usersWithDueTasks[index].email,
+      subject: "Your Task List. Complete them before its too late", // Subject line
+      text: `Hello ${
+        usersWithDueTasks[index].full_name
+      },\n\nHere are your tasks:\n${usersWithDueTasks[index].tasks
+        .map((task) => `- ${task}`)
+        .join("\n")}\n\nBest regards,\nYour Task Management Team`, // Plain text body
+      html: `
+    <html>
+      <body style="font-family: Arial, sans-serif; color: #333;">
+        <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px;">
+          <h2 style="color: #4CAF50;">Hello ${
+            usersWithDueTasks[index].full_name
+          },</h2>
+          <p>Here are your tasks:</p>
+          <ul style="list-style-type: none; padding: 0;">
+            ${usersWithDueTasks[index].tasks
+              .map(
+                (task) =>
+                  `<li style="padding: 5px 0; font-size: 16px;">&#x2022; ${task}</li>`
+              )
+              .join("")}
+          </ul>
+          <p style="margin-top: 20px;">Best regards,<br>Your Task Management Team</p>
+        </div>
+      </body>
+    </html>
+  `,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log("Error occurred:", error);
+      }
+      console.log("Email sent:", info.response);
+    });
+  }
+  if (urgentTasks.length) {
+    const taskNotifTurnedOffCount = await queries.setEmailNotifForSentTaskOff(
+      thirtyMinutesFromNow
+    );
+    console.log("turned of notif for ", taskNotifTurnedOffCount);
+  }
+};
 
 module.exports.addTask = expressAsyncHandler(async (req, res) => {
   const { user_id } = req.headers.payload;
   const { title, description, due_date } = req.body;
 
-  if (!due_date || !description || !!title) {
+  console.log(title, due_date, description);
+
+  if (!due_date || !description || !title) {
     return res.status(400).json({
       message: "Form fields missing.",
     });
@@ -43,6 +111,7 @@ module.exports.addTask = expressAsyncHandler(async (req, res) => {
   );
   console.log(taskAdded);
   if (taskAdded) {
+    this.pollDatabaseAndSendMail();
     return res.json({
       success: true,
       message: "task added",
@@ -78,4 +147,74 @@ module.exports.getTask = expressAsyncHandler(async (req, res) => {
     task: selectedTask,
     message: "task retrieved",
   });
+});
+
+module.exports.deleteTask = expressAsyncHandler(async (req, res) => {
+  const { user_id } = req.headers.payload;
+  const { task_id } = req.params;
+  const taskDeleted = await queries.deleteTask(user_id, task_id);
+  if (!taskDeleted) {
+    return res.status(404).json({
+      message: "Task not found",
+    });
+  }
+  res.json({
+    success: true,
+    task: taskDeleted,
+    message: "task deleted",
+  });
+});
+
+module.exports.setTaskCompleteStatus = expressAsyncHandler(async (req, res) => {
+  const { user_id } = req.headers.payload;
+  const { task_id } = req.params;
+  const { status_update_to } = req.body;
+  const now = new Date();
+
+  const localTimestamp = now
+    .toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    })
+    .replace(", ", "T");
+
+  console.log(localTimestamp);
+  const taskStatusUpdated = await queries.updateTaskStatus(
+    status_update_to,
+    status_update_to ? localTimestamp : null,
+    user_id,
+    task_id
+  );
+  if (taskStatusUpdated.success) {
+    if (!status_update_to) {
+      const setTaskReminderOn = await queries.setTaskReminderOn(
+        user_id,
+        task_id
+      );
+      console.log("setted task reminder on: ", setTaskReminderOn);
+      this.pollDatabaseAndSendMail();
+    } else {
+      const setTaskReminderOff = await queries.setTaskReminderOff(
+        user_id,
+        task_id
+      );
+      console.log("setted task reminder off: ", setTaskReminderOff);
+    }
+
+    res.json({
+      success: true,
+      message: `Task marked ${
+        taskStatusUpdated.updated_to ? "complete." : "incomplete."
+      }`,
+    });
+  } else {
+    res.status(404).json({
+      message: "task not found",
+    });
+  }
 });

@@ -55,6 +55,7 @@ app.use("/api_docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const userRoute = require("./routes/userRoute");
 const taskRoute = require("./routes/taskRoute");
+const { pollDatabaseAndSendMail } = require("./controller/taskController");
 
 app.use("/user", userRoute);
 app.use("/task", taskRoute);
@@ -70,6 +71,12 @@ app.listen(port, () => {
     `App listening at http://localhost:${port} \nfind docs on api at http://localhost:${port}/api_docs`
   );
 });
+
+// polling database every 30 minutes
+pollDatabaseAndSendMail();
+setInterval(() => {
+  pollDatabaseAndSendMail();
+}, 30 * 60 * 100);
 
 /**
  * @swagger
@@ -243,7 +250,7 @@ app.listen(port, () => {
  *         description: Invalid credentials
  * /user/accessToken:
  *   post:
- *     summary: Regenerates new access.
+ *     summary: Regenerates new access token.
  *     description: Checks if the **refresh token is valid** and grants user with new access token which will again **expire in 30s.**
  *     tags:
  *       - Users
@@ -264,7 +271,7 @@ app.listen(port, () => {
  *       200:
  *         description: Send new refresh token.
  *       401:
- *         description: Refresh token expired.
+ *         description: Refresh token expired / Invalid.
  * /task:
  *   post:
  *     summary: Adds Task for user.
@@ -338,4 +345,50 @@ app.listen(port, () => {
  *         description: Token errors.
  *       403:
  *         description: Access token expired. **You will need to request a new access Token.**
+ *       404:
+ *         description: Requested task not found.
+ *   patch:
+ *     summary: update completion status of user.
+ *     description: update specefic task for user using the **task_id**. sets task to complete if not completed and vice versa.
+ *     tags:
+ *       - Tasks
+ *     parameters:
+ *       - $ref: '#/components/parameters/AuthorizationHeader'
+ *       - name: task_id
+ *         in: path
+ *         required: true
+ *         description: The ID of the task to retrieve.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Task status updated for user.
+ *       400:
+ *         description: Token errors.
+ *       403:
+ *         description: Access token expired. **You will need to request a new access Token.**
+ *       404:
+ *         description: Requested Taks not found.
+ *   delete:
+ *     summary: Delete individual task for user using task_id.
+ *     description: Delete specific task for user using the **task_id**.
+ *     tags:
+ *       - Tasks
+ *     parameters:
+ *       - $ref: '#/components/parameters/AuthorizationHeader'
+ *       - name: task_id
+ *         in: path
+ *         required: true
+ *         description: The ID of the task to retrieve.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Task Deleted for user.
+ *       400:
+ *         description: Token errors.
+ *       403:
+ *         description: Access token expired. **You will need to request a new access Token.**
+ *       404:
+ *         description: Requested Taks not found.
  */

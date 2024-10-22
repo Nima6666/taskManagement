@@ -106,7 +106,7 @@ export default function TaskForm() {
 
       console.log(loggedUser.accessToken);
       const response = await axios.post(
-        `${import.meta.env.VITE_SERVERAPI}/task/`,
+        `${import.meta.env.VITE_SERVERAPI}/task`,
         { ...formData },
         {
           headers: {

@@ -57,6 +57,7 @@ if (args.length < 1) {
 
 const jwt = require("jsonwebtoken");
 const queries = require("./database/queries");
+const { pollDatabaseAndSendMail } = require("./controller/taskController");
 
 jwt.verify(args[0], process.env.JWT_SECRET, async (err, payload) => {
   if (err) {
@@ -67,7 +68,7 @@ jwt.verify(args[0], process.env.JWT_SECRET, async (err, payload) => {
     for (let i = 0; i < tasks.length; i++) {
       const randomMinutes = Math.floor(Math.random() * 3000) + 30;
 
-      const dueDate = new Date(Date.now() + randomMinutes * 60000);
+      const dueDate = new Date(Date.now() + randomMinutes * 60 * 100);
 
       await queries.addTask(
         user_id,
@@ -78,6 +79,7 @@ jwt.verify(args[0], process.env.JWT_SECRET, async (err, payload) => {
 
       console.log(i + 1, " Task Added.");
     }
+    await pollDatabaseAndSendMail();
     process.exit(1);
   }
 });

@@ -4,13 +4,14 @@ import Header from "./pages/components/header";
 import Home from "./pages/home";
 import Signup from "./pages/signup";
 import Login from "./pages/login";
-import Dashboard from "./pages/dashboard";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reduxStore/slices/rootReducer";
 import { getAccessToken, userActions } from "./reduxStore/slices/userSlice";
 import MyProfile from "./pages/myProfile";
 import TaskForm from "./pages/taskForm";
+import TaskDetails from "./pages/task";
+import Tasks from "./pages/tasks";
 
 function App() {
   const refreshToken = localStorage.getItem("refreshToken");
@@ -45,14 +46,15 @@ function App() {
       <Header />
       <Routes>
         {loggedUser.accessToken ? (
-          <Route path="*" element={<Navigate to="/dashboard" />} />
+          <Route path="*" element={<Navigate to="/tasks" />} />
         ) : (
           <Route path="*" element={<Navigate to="/" />} />
         )}
         {refreshToken && (
           <>
             <Route path="/addTask" element={<TaskForm />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/tasks/:task_id" element={<TaskDetails />} />
             <Route path="/profile" element={<MyProfile />} />
           </>
         )}

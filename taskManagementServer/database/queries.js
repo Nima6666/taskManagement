@@ -70,7 +70,7 @@ module.exports.addTask = async (user_id, title, description, due_date) => {
 };
 
 module.exports.getTasks = async (user_id, name, sort) => {
-  const validColumns = ["created_at", "due_date", "title"];
+  const validColumns = ["created_at", "due_date", "title", "complete"];
   const sortTypes = ["ASC", "DESC"];
   if (!validColumns.includes(name)) {
     throw new Error("Invalid column name for ordering");
@@ -88,4 +88,74 @@ module.exports.getTask = async (user_id, task_id) => {
   const dbresponse = await pool.query(getTaskByIdQuery, [user_id, task_id]);
   const [task] = dbresponse.rows;
   return task;
+};
+
+module.exports.deleteTask = async (user_id, task_id) => {
+  const deleteTaskQuery = `DELETE FROM tasks WHERE user_id = $1 AND id = $2`;
+  const dbresponse = await pool.query(deleteTaskQuery, [user_id, task_id]);
+  console.log("task deleted ", dbresponse.rowCount);
+  return dbresponse.rowCount;
+};
+
+module.exports.updateTaskStatus = async (
+  completeStatus,
+  completed_at,
+  user_id,
+  task_id
+) => {
+  const deleteTaskQuery =
+    "UPDATE tasks SET complete = $1, completed_at = $2 WHERE user_id = $3 AND id = $4;";
+  const dbresponse = await pool.query(deleteTaskQuery, [
+    completeStatus,
+    completed_at,
+    user_id,
+    task_id,
+  ]);
+  console.log("task deleted ", dbresponse.rowCount);
+  if (dbresponse.rowCount) {
+    return {
+      success: true,
+      updated_to: completeStatus,
+    };
+  } else {
+    return {
+      message: "something went wrong",
+    };
+  }
+};
+
+module.exports.getUrgentTasks = async (time) => {
+  const getUrgentTaskQuery = `
+    SELECT users.full_name, users.email, ARRAY_AGG(tasks.title) AS tasks 
+    FROM users 
+    INNER JOIN tasks ON users.id = tasks.user_id 
+    WHERE tasks.due_date < $1 
+    AND tasks.complete = false
+    AND tasks.alerted_user = false 
+    GROUP BY users.full_name, users.email;
+`;
+  const dbresponse = await pool.query(getUrgentTaskQuery, [time]);
+  return dbresponse.rows;
+};
+
+module.exports.setEmailNotifForSentTaskOff = async (time) => {
+  const setTaskNotifOffQuery = `
+  UPDATE tasks SET alerted_user = True WHERE due_date < $1 AND complete = false;
+`;
+  const dbresponse = await pool.query(setTaskNotifOffQuery, [time]);
+  return dbresponse.rowCount;
+};
+
+module.exports.setTaskReminderOn = async (user_id, task_id) => {
+  const setReminderTaskQuery =
+    "UPDATE tasks SET alerted_user = False WHERE user_id = $1 AND id = $2;";
+  const dbresponse = await pool.query(setReminderTaskQuery, [user_id, task_id]);
+  return dbresponse.rowCount;
+};
+
+module.exports.setTaskReminderOff = async (user_id, task_id) => {
+  const setReminderTaskQuery =
+    "UPDATE tasks SET alerted_user = True WHERE user_id = $1 AND id = $2;";
+  const dbresponse = await pool.query(setReminderTaskQuery, [user_id, task_id]);
+  return dbresponse.rowCount;
 };

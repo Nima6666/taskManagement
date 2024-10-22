@@ -51,6 +51,7 @@ export const getUsersTasks = async (
       }
     );
     if (response.data.success) {
+      console.clear();
       dispatch(taskActions.setTasks(response.data.tasks));
     } else {
       toast.error(response.data.message);
@@ -91,6 +92,7 @@ export const getUsersTask = async (
       }
     );
     if (response.data.success) {
+      console.clear();
       dispatch(taskActions.setSelectedTask(response.data.task));
     } else {
       toast.error(response.data.message);
@@ -133,6 +135,7 @@ export const deleteTask = async (
       }
     );
     if (response.data.success) {
+      console.clear();
       toast.success(response.data.message);
       navigate("/tasks");
     } else {
@@ -182,6 +185,7 @@ export const updateTaskStatus = async (
       }
     );
     if (response.data.success) {
+      console.clear();
       toast.success(response.data.message);
       dispatch(taskActions.clearCacheSetPending());
       navigate("/tasks");

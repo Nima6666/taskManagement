@@ -233,10 +233,12 @@ export default function TaskForm(props: props) {
                 <Field
                   type="text"
                   name="title"
+                  id="title"
                   className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
                 />
                 <ErrorMessage
                   name="title"
+                  id="title"
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />
@@ -253,11 +255,13 @@ export default function TaskForm(props: props) {
                 <Field
                   as="textarea"
                   name="description"
+                  id="description"
                   rows="4"
                   className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none resize-none"
                 />
                 <ErrorMessage
                   name="description"
+                  id="description"
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />
@@ -273,11 +277,13 @@ export default function TaskForm(props: props) {
                   <Field
                     type="datetime-local"
                     name="due_date"
+                    id="due_date"
                     className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
                     min={getCurrentDateTime()}
                   />
                   <ErrorMessage
                     name="due_date"
+                    id="due_date"
                     component="div"
                     className="text-red-600 text-sm mt-1"
                   />

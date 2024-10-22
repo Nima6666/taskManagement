@@ -4,6 +4,7 @@ import { RootState } from "../../reduxStore/slices/rootReducer";
 import { BeatLoader } from "react-spinners";
 import { uiActions } from "../../reduxStore/slices/uiSlice";
 import Model from "./model";
+import logoImg from "/taskyfy.png";
 
 export default function Header() {
   const { loggedUser } = useSelector((state: RootState) => state.user);
@@ -14,8 +15,9 @@ export default function Header() {
   return (
     <header className="bg-gray-800 text-white p-4 fixed w-screen top-0 z-50 px-4">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-lg font-bold">
-          TASKYY
+        <Link to="/" className="flex justify-center items-center">
+          <img src={logoImg} className="h-12 w-12 mr-2" />
+          <div className="text-lg font-bold">TASKYFY</div>
         </Link>
         <nav>
           <ul className="flex space-x-4">

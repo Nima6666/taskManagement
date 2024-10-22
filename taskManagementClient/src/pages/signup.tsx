@@ -123,10 +123,12 @@ export default function Signup() {
                 <Field
                   type="text"
                   name="fullName"
+                  id="fullName"
                   className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
                 />
                 <ErrorMessage
                   name="fullName"
+                  id="fullName"
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />
@@ -143,10 +145,13 @@ export default function Signup() {
                 <Field
                   type="email"
                   name="email"
+                  id="email"
+                  autocomplete="on"
                   className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
                 />
                 <ErrorMessage
                   name="email"
+                  id="email"
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />
@@ -163,10 +168,12 @@ export default function Signup() {
                 <Field
                   type="password"
                   name="password"
+                  id="password"
                   className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
                 />
                 <ErrorMessage
                   name="password"
+                  id="password"
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />
@@ -183,10 +190,12 @@ export default function Signup() {
                 <Field
                   type="password"
                   name="confirmPassword"
+                  id="confirmPassword"
                   className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
                 />
                 <ErrorMessage
                   name="confirmPassword"
+                  id="confirmPassword"
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />

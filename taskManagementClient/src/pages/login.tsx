@@ -109,10 +109,13 @@ export default function Login() {
                 <Field
                   type="email"
                   name="email"
+                  id="email"
+                  autocomplete="on"
                   className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
                 />
                 <ErrorMessage
                   name="email"
+                  id="email"
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />
@@ -129,10 +132,12 @@ export default function Login() {
                 <Field
                   type="password"
                   name="password"
+                  id="password"
                   className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
                 />
                 <ErrorMessage
                   name="password"
+                  id="password"
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />

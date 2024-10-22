@@ -24,7 +24,7 @@ const options = {
     info: {
       title: "Task Management API",
       description:
-        "This is the API documentation for the Task Management System.",
+        "This is the API documentation for the Task Management System. \n\nFor some reason i am unable to find why authoriazation header from Swagger is not getting passed to server, So please test routes requiring authorization header from postman or thunderclient.",
     },
     components: {
       parameters: {
@@ -76,9 +76,7 @@ app.use((req, res, next) => {
 
 // Starting Server
 app.listen(port, () => {
-  console.log(
-    `App listening at http://localhost:${port} \nfind docs on api at http://localhost:${port}/api_docs`
-  );
+  console.log(`Server listening at http://localhost:${port}`);
 });
 
 // polling database every 30 minutes
@@ -159,12 +157,17 @@ setInterval(() => {
  *           format: date-time
  *           description: The date and time when the task was created.
  *           example: "2023-10-21T10:10:00Z"
+ *         due_date:
+ *           type: string
+ *           format: date-time
+ *           description: The date and time when the task must be completed.
+ *           example: "2023-10-21T10:10:00Z"
  *         edited_at:
  *           type: string
  *           format: date-time
  *           description: The date and time when the task was edited.
  *           example: "2023-10-21T10:10:00Z"
- *         aleted_user:
+ *         alerted_user:
  *           type: boolean
  *           description: Stores value to denote if the user is notified about this task via email if task is not complete before due_date.
  *           example: false
@@ -206,7 +209,7 @@ setInterval(() => {
  * /user:
  *   post:
  *     summary: Register User
- *     description: Registers a new user with **fullname, email and password**.
+ *     description: Registers a new user with **fullname, email and password**. **Please use real email address to receive email notification on task.**
  *     tags:
  *       - Users
  *     requestBody:
@@ -339,7 +342,7 @@ setInterval(() => {
  *       200:
  *         description: Task retrived for user.
  *       400:
- *         description: Token errors.
+ *         description: Bad request.
  *       403:
  *         description: Access token expired. **You will need to request for new access Token.**
  * /task/{task_id}:
@@ -360,7 +363,7 @@ setInterval(() => {
  *       200:
  *         description: Task retrieved for user.
  *       400:
- *         description: Token errors.
+ *         description: Bad request.
  *       403:
  *         description: Access token expired. **You will need to request a new access Token.**
  *       404:
@@ -416,7 +419,7 @@ setInterval(() => {
  *       200:
  *         description: Task status updated for user.
  *       400:
- *         description: Token errors.
+ *         description: Bad request.
  *       403:
  *         description: Access token expired. **You will need to request a new access Token.**
  *       404:
@@ -438,7 +441,7 @@ setInterval(() => {
  *       200:
  *         description: Task Deleted for user.
  *       400:
- *         description: Token errors.
+ *         description: Bad request.
  *       403:
  *         description: Access token expired. **You will need to request a new access Token.**
  *       404:

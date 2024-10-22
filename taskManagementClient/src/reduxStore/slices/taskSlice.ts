@@ -45,6 +45,9 @@ export const getUsersTasks = async (
         params: {
           ...field,
         },
+        // validateStatus: (status) => {
+        //   return status !== 403;
+        // },
       }
     );
     if (response.data.success) {
@@ -53,8 +56,6 @@ export const getUsersTasks = async (
       toast.error(response.data.message);
     }
   } catch (error: any) {
-    console.log(error);
-
     if (error.response && error.response.data.message) {
       const { status } = error.response;
       if (status === 403) {
@@ -95,8 +96,6 @@ export const getUsersTask = async (
       toast.error(response.data.message);
     }
   } catch (error: any) {
-    console.log(error);
-
     if (error.response && error.response.data.message) {
       const { status } = error.response;
       if (status === 403) {

@@ -16,7 +16,7 @@ module.exports.isAuthenticated = expressAsyncHandler(async (req, res, next) => {
     const token = bearerToken.split(" ")[1];
     jwt.verify(token, process.env.JWT_SECRET, async (err, payload) => {
       if (err) {
-        console.log(err);
+        console.log("Access token expired");
         return res.status(403).json({
           success: false,
           message: "Access Token Expired",

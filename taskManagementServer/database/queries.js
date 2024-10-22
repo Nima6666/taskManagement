@@ -159,3 +159,22 @@ module.exports.setTaskReminderOff = async (user_id, task_id) => {
   const dbresponse = await pool.query(setReminderTaskQuery, [user_id, task_id]);
   return dbresponse.rowCount;
 };
+
+module.exports.updateTask = async (
+  title,
+  description,
+  editedDate,
+  task_id,
+  user_id
+) => {
+  const updateTaskQuery =
+    "UPDATE tasks SET title = $1, description = $2, edited_at = $3 WHERE id = $4 AND user_id = $5";
+  const dbresponse = await pool.query(updateTaskQuery, [
+    title,
+    description,
+    editedDate,
+    task_id,
+    user_id,
+  ]);
+  return dbresponse.rowCount;
+};

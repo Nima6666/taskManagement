@@ -72,7 +72,7 @@ export default function TaskDetails() {
             <h3 className="text-2xl font-semibold text-blue-600">
               {selectedTask.task.title}
             </h3>
-            <p className="text-gray-700 mt-2">
+            <p className="text-gray-700 mt-2 mb-10">
               {selectedTask.task.description}
             </p>
             <div className="mt-4">
@@ -90,6 +90,22 @@ export default function TaskDetails() {
                   }
                 )}
               </p>
+              {selectedTask.task.edited_at && (
+                <p className="text-gray-500 italic">
+                  <strong>Last Edited At:</strong>{" "}
+                  {new Date(selectedTask.task.edited_at).toLocaleString(
+                    "en-US",
+                    {
+                      month: "short",
+                      year: "numeric",
+                      weekday: "long",
+                      hour: "numeric",
+                      minute: "numeric",
+                      hour12: true,
+                    }
+                  )}
+                </p>
+              )}
               <p className="text-gray-600">
                 <strong>Due Date:</strong>{" "}
                 {new Date(selectedTask.task.due_date).toLocaleString("en-US", {
@@ -137,7 +153,10 @@ export default function TaskDetails() {
               >
                 Delete Task
               </button>
-              <button className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50">
+              <button
+                className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+                onClick={() => navigate("./edit")}
+              >
                 Edit Task
               </button>
               <button

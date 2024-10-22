@@ -218,3 +218,58 @@ module.exports.setTaskCompleteStatus = expressAsyncHandler(async (req, res) => {
     });
   }
 });
+
+module.exports.updateTask = expressAsyncHandler(async (req, res) => {
+  const { user_id } = req.headers.payload;
+  const { task_id } = req.params;
+
+  const { title, description } = req.body;
+
+  if (!description || !title) {
+    return res.status(400).json({
+      message: "Form fields missing.",
+    });
+  }
+
+  const taskToEdit = await queries.getTask(user_id, task_id);
+
+  if (taskToEdit.description === description && title === taskToEdit.title) {
+    return res.json({
+      success: true,
+      message: "Nothing changed.",
+    });
+  }
+
+  const now = new Date();
+
+  const localTimestamp = now
+    .toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    })
+    .replace(", ", "T");
+
+  const taskEdited = await queries.updateTask(
+    title,
+    description,
+    localTimestamp,
+    task_id,
+    user_id
+  );
+  console.log(taskEdited);
+  if (taskEdited) {
+    return res.json({
+      success: true,
+      message: "task updated",
+    });
+  } else {
+    return res.json({
+      message: "something went wrong edited task",
+    });
+  }
+});

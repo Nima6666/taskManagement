@@ -11,6 +11,7 @@ router.patch(
   isAuthenticated,
   taskController.setTaskCompleteStatus
 );
+router.put("/:task_id", isAuthenticated, taskController.updateTask);
 router.post("/", isAuthenticated, taskController.addTask);
 router.get("/", isAuthenticated, taskController.getTasks);
 

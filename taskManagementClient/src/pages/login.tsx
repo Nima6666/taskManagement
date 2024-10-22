@@ -78,7 +78,7 @@ export default function Login() {
 
   return (
     <div
-      className="w-full sm:w-[400px] mx-auto mt-24 p-5 rounded shadow-lg bg-white"
+      className="w-full sm:w-[400px] mx-auto mt-32 p-5 rounded shadow-lg bg-white"
       style={{
         opacity: pending ? 0.6 : 1,
         cursor: pending ? "not-allowed" : "default",

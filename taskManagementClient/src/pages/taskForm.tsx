@@ -4,9 +4,10 @@ import { RootState } from "../reduxStore/slices/rootReducer";
 import { uiActions } from "../reduxStore/slices/uiSlice";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getAccessToken, userActions } from "../reduxStore/slices/userSlice";
 import { useEffect } from "react";
+import { getUsersTask, taskActions } from "../reduxStore/slices/taskSlice";
 
 interface TaskFormValues {
   title: string;
@@ -14,13 +15,38 @@ interface TaskFormValues {
   due_date: string;
 }
 
-export default function TaskForm() {
+interface props {
+  edit: boolean;
+}
+
+export default function TaskForm(props: props) {
+  let task_id: null | string = null;
+  const { edit } = props;
+  if (edit) {
+    task_id = useParams().task_id as string;
+  }
   const pending = useSelector((state: RootState) => state.ui.pending);
   const { loggedUser } = useSelector((state: RootState) => state.user);
+  const { selectedTask } = useSelector((state: RootState) => state.task);
 
   useEffect(() => {
-    async function getUsersTasksHandler() {}
-  }, []);
+    async function getUsersTaskToEditHandler() {
+      await getUsersTask(
+        loggedUser.accessToken as string,
+        dispatch,
+        task_id as string
+      );
+    }
+    if (loggedUser.resolved && loggedUser.accessToken && edit && task_id) {
+      getUsersTaskToEditHandler();
+    }
+  }, [edit, task_id, selectedTask.resolved, loggedUser]);
+
+  useEffect(() => {
+    if (edit) {
+      dispatch(taskActions.setSelectedTaskPending());
+    }
+  }, [edit]);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -42,65 +68,22 @@ export default function TaskForm() {
     if (!values.description) {
       errors.description = "Description is required";
     }
-    if (!values.due_date) {
-      errors.due_date = "Due date is required";
-    } else if (isNaN(Date.parse(values.due_date))) {
-      errors.due_date = "Invalid date format";
-    } else if (new Date(values.due_date).getTime() < Date.now()) {
-      errors.due_date = "Date can not be in past";
+    if (!edit) {
+      if (!values.due_date) {
+        errors.due_date = "Due date is required";
+      } else if (isNaN(Date.parse(values.due_date))) {
+        errors.due_date = "Invalid date format";
+      } else if (new Date(values.due_date).getTime() < Date.now()) {
+        errors.due_date = "Date can not be in past";
+      }
     }
     return errors;
   };
-  //   console.log("Form Values:", formData);
-  //   try {
-  //     dispatch(uiActions.setPending());
-
-  //     const response = await axios.post(
-  //       `${import.meta.env.VITE_SERVERAPI}/task/`,
-  //       {
-  //         ...formData,
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: loggedUser.accessToken as string,
-  //         },
-  //       }
-  //     );
-  //     console.log(response.data);
-  //     if (response.data.success) {
-  //       toast.success(response.data.message);
-  //       navigate("/dashboard");
-  //     } else {
-  //       toast.error(response.data.message);
-  //     }
-  //   } catch (error: any) {
-  //     if (error.status == 403) {
-  //       const loggedInUser = await getAccessToken();
-  //       console.log(loggedInUser);
-  //       dispatch(
-  //         userActions.setLoggedUser({
-  //           name: loggedInUser.name,
-  //           accessToken: loggedInUser.newAccessToken,
-  //           email: loggedInUser.email,
-  //         })
-  //       );
-  //       handleTaskAdd(formData);
-  //     }
-  //     if (error.response && error.response.data.message) {
-  //       toast.error(error.response.data.message);
-  //     } else {
-  //       toast.error(error.message);
-  //     }
-  //   } finally {
-  //     dispatch(uiActions.setPendingResolved());
-  //   }
-  // };
 
   const handleTaskAdd = async (
     formData: TaskFormValues,
     accessToken: string
   ) => {
-    console.log("using access token ", accessToken);
     try {
       dispatch(uiActions.setPending());
 
@@ -129,7 +112,6 @@ export default function TaskForm() {
 
         //  if status code is 403 i.e access token expired
         if (status === 403) {
-          toast.success("requesting new token");
           const loggedInUser = await getAccessToken();
           dispatch(
             userActions.setLoggedUser({
@@ -147,32 +129,101 @@ export default function TaskForm() {
     }
   };
 
+  const handleTaskEdit = async (
+    formData: TaskFormValues,
+    accessToken: string
+  ) => {
+    console.log("Edit ", accessToken, formData);
+    try {
+      dispatch(uiActions.setPending());
+      const response = await axios.put(
+        `${import.meta.env.VITE_SERVERAPI}/task/${task_id}`,
+        { ...formData },
+        {
+          headers: {
+            Authorization: accessToken as string,
+          },
+        }
+      );
+
+      console.log(response.data);
+      if (response.data.success) {
+        toast.success(response.data.message);
+        navigate("/dashboard");
+      } else {
+        toast.error(response.data.message);
+      }
+      dispatch(uiActions.setPendingResolved());
+    } catch (error: any) {
+      if (error.response && error.response.data.message) {
+        const { status } = error.response;
+
+        //  if status code is 403 i.e access token expired
+        if (status === 403) {
+          const loggedInUser = await getAccessToken();
+          dispatch(
+            userActions.setLoggedUser({
+              name: loggedInUser.name,
+              accessToken: loggedInUser.newAccessToken,
+              email: loggedInUser.email,
+            })
+          );
+          return handleTaskEdit(formData, loggedInUser.newAccessToken);
+        }
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(error.message);
+      }
+    }
+  };
+
+  console.log(selectedTask);
+
   return (
     <div
       className="w-full sm:w-[400px] mx-auto mt-32 p-5 rounded shadow-lg bg-white"
       style={{
-        opacity: pending ? 0.6 : 1,
-        cursor: pending ? "not-allowed" : "default",
+        opacity: pending || (edit && !selectedTask.resolved) ? 0.6 : 1,
+        cursor:
+          pending || (edit && !selectedTask.resolved)
+            ? "not-allowed"
+            : "default",
       }}
     >
-      <h1 className="text-2xl font-bold mb-6">Create Task</h1>
+      <h1 className="text-2xl font-bold mb-6">
+        {edit ? "Edit" : "Create"} Task
+      </h1>
       <Formik
         initialValues={{
-          title: "",
-          description: "",
+          title:
+            edit && selectedTask.resolved && selectedTask.task?.title
+              ? selectedTask.task.title
+              : "",
+          description:
+            edit && selectedTask.resolved && selectedTask.task?.description
+              ? selectedTask.task.description
+              : "",
           due_date: "",
         }}
         validate={validate}
         onSubmit={async (formData, { setSubmitting }) => {
-          await handleTaskAdd(formData, loggedUser.accessToken as string);
+          if (edit) {
+            console.log("editing");
+            await handleTaskEdit(formData, loggedUser.accessToken as string);
+          } else {
+            await handleTaskAdd(formData, loggedUser.accessToken as string);
+          }
+          console.log("done");
           setSubmitting(false); // stop the form submission status
         }}
+        enableReinitialize={true}
       >
         {() => (
           <Form
             className="transition-all duration-300"
             style={{
-              pointerEvents: pending ? "none" : "all",
+              pointerEvents:
+                pending || (edit && !selectedTask.resolved) ? "none" : "all",
               cursor: !loggedUser.resolved ? "not-allowed" : "default",
             }}
           >
@@ -221,26 +272,27 @@ export default function TaskForm() {
                   className="text-red-600 text-sm mt-1"
                 />
               </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="due_date"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Due Date and Time
-                </label>
-                <Field
-                  type="datetime-local"
-                  name="due_date"
-                  className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
-                  min={getCurrentDateTime()}
-                />
-                <ErrorMessage
-                  name="due_date"
-                  component="div"
-                  className="text-red-600 text-sm mt-1"
-                />
-              </div>
+              {!edit && (
+                <div className="mb-4">
+                  <label
+                    htmlFor="due_date"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Due Date and Time
+                  </label>
+                  <Field
+                    type="datetime-local"
+                    name="due_date"
+                    className="mt-1 p-2 block w-full border border-gray-300 transition-all duration-300 focus:border-gray-900 rounded-md shadow-sm outline-none"
+                    min={getCurrentDateTime()}
+                  />
+                  <ErrorMessage
+                    name="due_date"
+                    component="div"
+                    className="text-red-600 text-sm mt-1"
+                  />
+                </div>
+              )}
 
               {/* Submit Button */}
               <div className="mb-4">
@@ -248,7 +300,11 @@ export default function TaskForm() {
                   type="submit"
                   className="w-full bg-blue-500 text-white font-semibold py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
                 >
-                  {pending ? "Please Wait..." : "Create Task"}
+                  {pending || (edit && !selectedTask.resolved)
+                    ? "Please Wait..."
+                    : edit
+                    ? "Edit Task"
+                    : "Create Task"}
                 </button>
               </div>
             </div>

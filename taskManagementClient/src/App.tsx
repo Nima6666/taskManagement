@@ -52,8 +52,12 @@ function App() {
         )}
         {refreshToken && (
           <>
-            <Route path="/addTask" element={<TaskForm />} />
+            <Route path="/addTask" element={<TaskForm edit={false} />} />
             <Route path="/tasks" element={<Tasks />} />
+            <Route
+              path="/tasks/:task_id/edit"
+              element={<TaskForm edit={true} />}
+            />
             <Route path="/tasks/:task_id" element={<TaskDetails />} />
             <Route path="/profile" element={<MyProfile />} />
           </>

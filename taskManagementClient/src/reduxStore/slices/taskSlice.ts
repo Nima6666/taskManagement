@@ -139,8 +139,6 @@ export const deleteTask = async (
       toast.error(response.data.message);
     }
   } catch (error: any) {
-    console.log(error);
-
     if (error.response && error.response.data.message) {
       const { status } = error.response;
       if (status === 403) {
@@ -191,8 +189,6 @@ export const updateTaskStatus = async (
       toast.error(response.data.message);
     }
   } catch (error: any) {
-    console.log(error);
-
     if (error.response && error.response.data.message) {
       const { status } = error.response;
       if (status === 403) {

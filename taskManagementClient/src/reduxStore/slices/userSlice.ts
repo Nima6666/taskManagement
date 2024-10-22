@@ -34,8 +34,6 @@ export async function getAccessToken() {
       return toast.error(response.data.message);
     }
   } catch (error: any) {
-    console.log(error);
-    console.log(error.status);
     if (error.status == 401) {
       localStorage.removeItem("refreshToken");
       window.location.href = "/login";
@@ -67,7 +65,6 @@ const userSlice = createSlice({
       state.loggedUser.email = action.payload.email;
     },
     resetUser(state) {
-      console.log("user reset");
       localStorage.removeItem("refreshToken");
       state.loggedUser.resolved = true;
       state.loggedUser.accessToken = null;

@@ -86,8 +86,6 @@ export default function TaskForm(props: props) {
   ) => {
     try {
       dispatch(uiActions.setPending());
-
-      console.log(loggedUser.accessToken);
       const response = await axios.post(
         `${import.meta.env.VITE_SERVERAPI}/task`,
         { ...formData },
@@ -98,7 +96,6 @@ export default function TaskForm(props: props) {
         }
       );
 
-      console.log(response.data);
       if (response.data.success) {
         toast.success(response.data.message);
         navigate("/dashboard");
@@ -133,7 +130,6 @@ export default function TaskForm(props: props) {
     formData: TaskFormValues,
     accessToken: string
   ) => {
-    console.log("Edit ", accessToken, formData);
     try {
       dispatch(uiActions.setPending());
       const response = await axios.put(
@@ -145,8 +141,6 @@ export default function TaskForm(props: props) {
           },
         }
       );
-
-      console.log(response.data);
       if (response.data.success) {
         toast.success(response.data.message);
         navigate("/dashboard");
@@ -177,8 +171,6 @@ export default function TaskForm(props: props) {
     }
   };
 
-  console.log(selectedTask);
-
   return (
     <div
       className="w-full sm:w-[400px] mx-auto mt-32 p-5 rounded shadow-lg bg-white"
@@ -208,12 +200,10 @@ export default function TaskForm(props: props) {
         validate={validate}
         onSubmit={async (formData, { setSubmitting }) => {
           if (edit) {
-            console.log("editing");
             await handleTaskEdit(formData, loggedUser.accessToken as string);
           } else {
             await handleTaskAdd(formData, loggedUser.accessToken as string);
           }
-          console.log("done");
           setSubmitting(false); // stop the form submission status
         }}
         enableReinitialize={true}

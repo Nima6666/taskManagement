@@ -39,7 +39,6 @@ export default function Login() {
   };
 
   const handleLogin = async (formData: FormValues) => {
-    console.log("Form Values:", formData);
     try {
       dispatch(uiActions.setPending());
 
@@ -49,11 +48,9 @@ export default function Login() {
           ...formData,
         }
       );
-      console.log(response.data);
       if (response.data.success) {
         toast.success(response.data.message);
         localStorage.setItem("refreshToken", response.data.refreshToken);
-        console.log(response.data);
         dispatch(
           userActions.setLoggedUser({
             name: response.data.name,

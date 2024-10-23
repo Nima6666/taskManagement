@@ -116,6 +116,10 @@ export default function TaskDetails() {
                   minute: "numeric",
                   hour12: true,
                 })}
+                {new Date(selectedTask.task.due_date) < new Date(Date.now()) &&
+                  !selectedTask.task.complete && (
+                    <div className="text-red-600">Marked Urgent</div>
+                  )}
               </p>
               <p className="text-gray-600">
                 <strong>Status:</strong>{" "}

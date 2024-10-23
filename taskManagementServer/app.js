@@ -66,6 +66,8 @@ app.get("/", (req, res) => {
   );
 });
 
+app.get("/favicon.ico", (req, res) => res.status(204));
+
 app.use("/user", userRoute);
 app.use("/task", taskRoute);
 
@@ -83,7 +85,7 @@ app.listen(port, () => {
 pollDatabaseAndSendMail();
 setInterval(() => {
   pollDatabaseAndSendMail();
-}, 30 * 60 * 100);
+}, 30 * 60 * 1000);
 
 /**
  * @swagger

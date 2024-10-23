@@ -67,7 +67,7 @@ export default function Tasks() {
   };
 
   return (
-    <div className="container mx-auto mt-24 p-4">
+    <div className="container mx-auto my-24 p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Your Tasks</h1>
 
       {taskRetrievalPending ? (
@@ -123,7 +123,17 @@ export default function Tasks() {
                 <tbody className="text-gray-700">
                   {userTasks.map((task) => (
                     <tr key={task.id} className="hover:bg-gray-50">
-                      <td className="border px-6 py-4">{task.title}</td>
+                      <td className="border px-6 py-4 ">
+                        <div className="flex">
+                          {task.title}
+                          {new Date(task.due_date) < new Date(Date.now()) &&
+                            !task.complete && (
+                              <div className="text-red-600 font-bold text-2xl">
+                                *
+                              </div>
+                            )}
+                        </div>
+                      </td>
                       <td className="border px-6 py-4">
                         {new Date(task.created_at).toLocaleString("en-US", {
                           month: "short",
@@ -176,6 +186,10 @@ export default function Tasks() {
               No tasks found.
             </div>
           )}
+          <p className="my-8 text-center">
+            <strong>Note: </strong>Tasks marked with * have passed their due
+            time.
+          </p>
           <div className="mt-6 text-center">
             <Link
               to="/addTask"

@@ -24,7 +24,7 @@ const options = {
     info: {
       title: "Task Management API",
       description:
-        "This is the API documentation for the Task Management System. \n\nFor some reason i am unable to find why authoriazation header from Swagger is not getting passed to server, So please test routes requiring authorization header from postman or thunderclient.",
+        "This is the API documentation for the Task Management System. \n\nFor some reason i am unable to find why authoriazation header from Swagger is not getting passed to server, **So please test routes requiring authorization header from postman or thunderclient**.",
     },
     components: {
       parameters: {

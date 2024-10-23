@@ -51,7 +51,7 @@ const args = process.argv.slice(2);
 if (args.length < 1) {
   return console.error(
     `Expected access token. 
-    Usage: node script.js <accessToken>`
+    Usage: npm run populateDb <your_access_token>`
   );
 }
 
@@ -61,7 +61,7 @@ const { pollDatabaseAndSendMail } = require("./controller/taskController");
 
 jwt.verify(args[0], process.env.JWT_SECRET, async (err, payload) => {
   if (err) {
-    console.log("token invalid");
+    console.error("token invalid");
     process.exit(0);
   } else {
     const { user_id } = payload;
@@ -83,3 +83,5 @@ jwt.verify(args[0], process.env.JWT_SECRET, async (err, payload) => {
     process.exit(1);
   }
 });
+
+process.exit(0);

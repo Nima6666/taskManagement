@@ -4,7 +4,7 @@ import { RootState } from "../reduxStore/slices/rootReducer";
 import toast from "react-hot-toast";
 import { uiActions } from "../reduxStore/slices/uiSlice";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { userActions } from "../reduxStore/slices/userSlice";
 import { useEffect } from "react";
 
@@ -141,6 +141,15 @@ export default function Login() {
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />
+              </div>
+
+              <div className="my-4">
+                <p>
+                  Don't have account?{" "}
+                  <Link to="/signup" className="font-semibold text-green-800">
+                    Sign Up
+                  </Link>
+                </p>
               </div>
 
               {/* Submit Button */}

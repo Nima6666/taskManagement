@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RootState } from "../../reduxStore/slices/rootReducer";
 import { BeatLoader } from "react-spinners";
 import { uiActions } from "../../reduxStore/slices/uiSlice";
@@ -8,6 +8,7 @@ import logoImg from "/taskyfy.png";
 
 export default function Header() {
   const { loggedUser } = useSelector((state: RootState) => state.user);
+  const navigate = useNavigate();
 
   const { logoutModelView } = useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
@@ -36,7 +37,7 @@ export default function Header() {
                 {logoutModelView && (
                   <div className="absolute top-[120%] right-0 w-40 bg-white shadow-lg text-lg p-2 rounded-md flex flex-col items-start text-slate-900 font-semibold">
                     <button
-                      className="w-full text-left py-2 px-4 hover:bg-red-200 transition rounded-md mb-2"
+                      className="w-full text-left py-2 px-4 hover:bg-red-200 transition rounded-md my-2"
                       onClick={() => {
                         localStorage.removeItem("refreshToken");
                         window.location.reload();
@@ -51,17 +52,24 @@ export default function Header() {
                     >
                       Profile
                     </Link>
+                    <Link
+                      to="/tasks"
+                      className="w-full text-left py-2 px-4 hover:bg-slate-200 transition rounded-md my-2"
+                      onClick={() => dispatch(uiActions.setModelClose())}
+                    >
+                      Dashboard
+                    </Link>
                   </div>
                 )}
               </div>
             ) : (
-              <li className="bg-gradient-to-r from-orange-400 to-yellow-400 p-2 px-4 rounded-lg shadow-lg transition-transform transform hover:scale-105">
-                <Link
-                  to="/login"
-                  className="text-slate-900 font-semibold text-lg text-center block hover:text-slate-600 transition duration-200"
-                >
+              <li
+                className="bg-gradient-to-r from-orange-400 to-yellow-400 p-2 px-4 rounded-lg shadow-lg transition-transform transform hover:scale-105"
+                onClick={() => navigate("/login")}
+              >
+                <div className="text-slate-900 font-semibold text-lg text-center block hover:text-slate-600 transition duration-200">
                   Login
-                </Link>
+                </div>
               </li>
             )}
           </ul>

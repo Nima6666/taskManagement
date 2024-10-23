@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { uiActions } from "../reduxStore/slices/uiSlice";
 import { RootState } from "../reduxStore/slices/rootReducer";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { userActions } from "../reduxStore/slices/userSlice";
 
@@ -199,6 +199,15 @@ export default function Signup() {
                   component="div"
                   className="text-red-600 text-sm mt-1"
                 />
+              </div>
+
+              <div className="my-4">
+                <p>
+                  Have account?{" "}
+                  <Link to="/login" className="font-semibold text-green-800">
+                    Login
+                  </Link>
+                </p>
               </div>
 
               {/* Submit Button */}

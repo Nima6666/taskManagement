@@ -11,7 +11,7 @@ export default function Home() {
       <div className="flex flex-col justify-center items-center">
         <img src={logoImg} className="h-60 w-60 mb-8" alt="" />
         <h1 className="text-4xl font-bold text-white mb-4 text-center">
-          Welcome to TASKYY
+          Welcome to TASKYFY
         </h1>
       </div>
       <p className="text-lg text-white mb-6 text-center">

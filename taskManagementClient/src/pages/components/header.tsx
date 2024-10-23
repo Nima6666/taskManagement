@@ -16,11 +16,11 @@ export default function Header() {
   return (
     <header className="bg-gray-800 text-white p-4 fixed w-screen top-0 z-50 px-4">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="flex justify-center items-center">
+        <Link to="/" className="flex justify-center items-center pl-4">
           <img src={logoImg} className="h-12 w-12 mr-2" />
           <div className="text-lg font-bold">TASKYFY</div>
         </Link>
-        <nav>
+        <nav className="pr-4">
           <ul className="flex space-x-4">
             {!loggedUser.resolved ? (
               <li className="h-12 w-12 flex justify-center items-center bg-slate-400 rounded-full text-2xl capitalize font-semibold text-slate-900">

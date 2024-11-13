@@ -3,7 +3,7 @@
 **Client:**
 
 1. Navigate to the `taskManagementClient` directory and run `npm install` to install dependencies.
-2. Update the `.env` file with `VITE_SERVERAPI = http://localhost:<server port>`.
+2. Update the `.env` file in client with `VITE_SERVERAPI = http://localhost:3000`. On default server will be running on port 3000. On server side the `.env` expects `DB_USER DB_PASSWORD DB_PORT DB_HOST DB_NAME JWT_SECRET EMAIL PASS` these values.
 3. Start the React project with `npm run dev`.
 
 **Server:**
